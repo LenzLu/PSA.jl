@@ -219,16 +219,16 @@ function lopf(network, solver)
     @constraints(m, begin
             [s=is_cyclic_i], SU_soc[s,1] == (SU_soc[s,T]
                                         + storage_units[s,:efficiency_store] * SU_store[s,1]
-                                        - (1./storage_units[s,:efficiency_dispatch]) * SU_dispatch[s,1]
+                                        - (1.0 /storage_units[s,:efficiency_dispatch]) * SU_dispatch[s,1]
                                         + inflow[1,s] - SU_spill[s,1] )
             [s=not_cyclic_i], SU_soc[s,1] == (storage_units[s,:state_of_charge_initial]
                                         + storage_units[s,:efficiency_store] * SU_store[s,1]
-                                        - (1./storage_units[s,:efficiency_dispatch]) * SU_dispatch[s,1]
+                                        - (1.0 /storage_units[s,:efficiency_dispatch]) * SU_dispatch[s,1]
                                         + inflow[1,s] - SU_spill[s,1])
 
             [s=1:N_sus,t=2:T], SU_soc[s,t] == (SU_soc[s,t-1]
                                             + storage_units[s,:efficiency_store] * SU_store[s,t]
-                                            - (1./storage_units[s,:efficiency_dispatch]) * SU_dispatch[s,t]
+                                            - (1.0 /storage_units[s,:efficiency_dispatch]) * SU_dispatch[s,t]
                                             + inflow[t,s] - SU_spill[s,t] )
 
         end)
@@ -398,7 +398,7 @@ function lopf(network, solver)
         nonnull_carriers = network.carriers[network.carriers[:co2_emissions].!=0, :]
         emmssions = Dict(zip(nonnull_carriers[:name], nonnull_carriers[:co2_emissions]))
         carrier_index(carrier) = findin(generators[:carrier], [carrier])
-        @constraint(m, sum(sum(dot(1./generators[carrier_index(carrier) , :efficiency],
+        @constraint(m, sum(sum(dot(1.0 /generators[carrier_index(carrier) , :efficiency],
                     G[carrier_index(carrier),t]) for t=1:T)
                     * select_names(network.carriers, [carrier])[:co2_emissions]
                     for carrier in network.carriers[:name]) .<=  co2_limit)

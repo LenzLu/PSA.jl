@@ -49,7 +49,7 @@ in the folder `/path/to/lib` of your choice.
 
 Then in your Julia script:
 
-```
+```julia
 push!(LOAD_PATH, "/path/to/lib")
 
 import PSA
@@ -63,6 +63,27 @@ solver = ClpSolver()
 m = PSA.lopf(network, solver)
 
 print(m.objVal)
+```
+
+
+## Force specific Conda environment
+
+If you want to use for example the `PyPSA-Eur` environment 
+```sh
+conda activate pypsa-eur
+```
+
+Add the following lines to your code to use the Python binary of same environment
+```julia
+using PyCall
+
+# Force the specific Python binary; Caveat: overwrites the PyCall build
+using Conda
+ENV["PYTHON"] = joinpath(Conda.ROOTENV, "envs", ENV["CONDA_DEFAULT_ENV"], "bin", "python")
+if PyCall.python != ENV["PYTHON"] 
+    @warn "Recompiling with Python binary '$(ENV["PYTHON"])'"
+    using Pkg; Pkg.build("PyCall")
+end
 ```
 
 
